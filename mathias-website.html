@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Awesome is Mathias?</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(120deg, #a1c4fd, #c2e9fb);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+        }
+        
+        #awesome-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            cursor: pointer;
+            margin: 1.5rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        #awesome-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        #awesome-button:active {
+            transform: translateY(1px);
+        }
+        
+        #result-container {
+            min-height: 150px;
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        
+        .firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px;
+            animation: firework 1s ease-out forwards;
+            opacity: 0;
+        }
+        
+        @keyframes firework {
+            0% { 
+                transform: translate(var(--x), var(--y)) scale(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(var(--x), var(--y)) scale(1);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>The Mathias Awesomeness Meter</h1>
+        <p>Click the button to discover how awesome Mathias really is!</p>
+        <button id="awesome-button">Reveal Awesomeness</button>
+        <div id="result-container"></div>
+    </div>
+
+    <script>
+        const awesomeQuotes = [
+            "Mathias is so awesome that awesomeness itself asks for his autograph.",
+            "Scientists needed to invent a new scale because Mathias broke the awesomeness meter.",
+            "When Mathias enters a room, even the WiFi signal gets stronger.",
+            "Mathias doesn't need GPS - awesome places find him automatically.",
+            "Legends say Mathias once high-fived a rainbow and created the Northern Lights.",
+            "Mathias is the reason why dictionaries needed to redefine 'awesome'.",
+            "Mathias doesn't follow trends, trends follow Mathias.",
+            "Mathias doesn't tell time, time asks Mathias what's next.",
+            "When Mathias codes, bugs debug themselves out of respect.",
+            "Mathias once won a staring contest with the sun.",
+            "Chuck Norris has Mathias posters on his wall.",
+            "Mathias' shadow once applied for its own passport.",
+            "Mathias can delete the Recycling Bin.",
+            "Smartphones get smarter when Mathias uses them.",
+            "Mathias can divide by zero. Twice.",
+            "When Mathias swims, the ocean gets out of his way.",
+            "Mathias doesn't break records, records break themselves trying to keep up with him.",
+            "The Internet was invented so the world could learn about Mathias.",
+            "Mathias can make onions cry.",
+            "Mathias' calendar goes straight from March 31st to April 2nd because nobody fools Mathias.",
+            "Mathias can speak braille and sign language simultaneously... while sleeping.",
+            "Mathias' presence automatically turns any room into the VIP section.",
+            "Autocorrect learns from Mathias, not the other way around.",
+            "Gravity exists because Mathias allows it to.",
+            "Mathias found the end of a rainbow. The leprechaun gave him the gold willingly.",
+            "Mathias doesn't watch movies. Movies watch how Mathias reacts to them.",
+            "When Mathias plays rock-paper-scissors, the elements themselves compete to be chosen by him.",
+            "Mathias' charisma can be seen from space.",
+            "Mathias doesn't need a microphone – sound amplifies itself to match his presence.",
+            "Mathias once completed a marathon backwards just to see who was in second place."
+        ];
+
+        const resultContainer = document.getElementById('result-container');
+        const awesomeButton = document.getElementById('awesome-button');
+        let isScramblingActive = false;
+        let timerId;
+
+        function getRandomChar() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+            return chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        function scrambleText(finalText) {
+            let currentText = '';
+            for (let i = 0; i < finalText.length; i++) {
+                currentText += finalText[i] === ' ' ? ' ' : getRandomChar();
+            }
+            return currentText;
+        }
+
+        function unscrambleText(finalText, progress) {
+            let result = '';
+            for (let i = 0; i < finalText.length; i++) {
+                if (i < finalText.length * progress) {
+                    result += finalText[i];
+                } else if (finalText[i] === ' ') {
+                    result += ' ';
+                } else {
+                    result += getRandomChar();
+                }
+            }
+            return result;
+        }
+
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.className = 'firework';
+            
+            const size = Math.random() * 5 + 5;
+            const x = (Math.random() - 0.5) * 400;
+            const y = (Math.random() - 0.5) * 400;
+            
+            firework.style.setProperty('--x', `${x}px`);
+            firework.style.setProperty('--y', `${y}px`);
+            firework.style.width = `${size}px`;
+            firework.style.height = `${size}px`;
+            
+            // Random color
+            const hue = Math.floor(Math.random() * 360);
+            firework.style.backgroundColor = `hsl(${hue}, 100%, 50%)`;
+            firework.style.boxShadow = `0 0 10px 2px hsl(${hue}, 100%, 60%)`;
+            
+            document.body.appendChild(firework);
+            
+            setTimeout(() => {
+                firework.remove();
+            }, 1000);
+        }
+
+        function animateResult() {
+            if (isScramblingActive) return;
+            
+            const randomQuote = awesomeQuotes[Math.floor(Math.random() * awesomeQuotes.length)];
+            isScramblingActive = true;
+            awesomeButton.disabled = true;
+            
+            // Initial scramble
+            resultContainer.textContent = scrambleText(randomQuote);
+            
+            let progress = 0;
+            const totalSteps = 20; // Number of steps to unscramble
+            let step = 0;
+            
+            timerId = setInterval(() => {
+                if (step < totalSteps) {
+                    progress = step / totalSteps;
+                    resultContainer.textContent = unscrambleText(randomQuote, progress);
+                    step++;
+                    
+                    // Add occasional fireworks during unscrambling
+                    if (Math.random() < 0.3) {
+                        createFirework();
+                    }
+                } else {
+                    resultContainer.textContent = randomQuote;
+                    clearInterval(timerId);
+                    isScramblingActive = false;
+                    awesomeButton.disabled = false;
+                    
+                    // Final fireworks celebration
+                    for (let i = 0; i < 15; i++) {
+                        setTimeout(() => {
+                            createFirework();
+                        }, i * 100);
+                    }
+                }
+            }, 100);
+        }
+
+        awesomeButton.addEventListener('click', animateResult);
+    </script>
+</body>
+</html>
