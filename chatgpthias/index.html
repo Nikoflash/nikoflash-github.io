@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="da">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatGPThias - Design Kritiker</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #1e1e1e;
+        color: #ffffff;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        text-align: center;
+        padding: 20px;
+        border-bottom: 1px solid #444;
+      }
+
+      .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .message {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .user-message {
+        align-self: flex-end;
+        background-color: #2b2b2b;
+        border-radius: 10px 10px 0 10px;
+        padding: 12px 16px;
+        max-width: 80%;
+      }
+
+      .bot-message {
+        align-self: flex-start;
+        background-color: #444654;
+        border-radius: 10px 10px 10px 0;
+        padding: 12px 16px;
+        max-width: 80%;
+      }
+
+      .sender {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .input-container {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .input-box {
+        display: flex;
+        background-color: #2b2b2b;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      textarea {
+        flex: 1;
+        background-color: #2b2b2b;
+        border: none;
+        color: #ffffff;
+        padding: 12px 16px;
+        resize: none;
+        font-family: inherit;
+        font-size: 1rem;
+        min-height: 24px;
+        max-height: 200px;
+        outline: none;
+      }
+
+      .send-button {
+        background: none;
+        border: none;
+        color: #ffffff;
+        padding: 0 16px;
+        cursor: pointer;
+      }
+
+      .button-container {
+        display: flex;
+        margin-top: 10px;
+        gap: 10px;
+      }
+
+      .action-button {
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #ffffff;
+        padding: 8px 12px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .icon {
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+      }
+
+      .upload-button {
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #ffffff;
+        padding: 8px 12px;
+        cursor: pointer;
+        display: none;
+        align-self: flex-start;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .upload-button.angry {
+        transform: scale(1.5);
+        background-color: #ff4040;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1.5);
+        }
+        50% {
+          transform: scale(1.7);
+        }
+        100% {
+          transform: scale(1.5);
+        }
+      }
+
+      .file-info {
+        margin-top: 8px;
+        font-size: 0.9rem;
+        color: #a0a0a0;
+        display: none;
+      }
+
+      .thinking {
+        display: inline-block;
+      }
+
+      .dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #a0a0a0;
+        margin: 0 2px;
+        animation: dot-pulse 1.5s infinite;
+      }
+
+      .dot:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+
+      .dot:nth-child(3) {
+        animation-delay: 0.4s;
+      }
+
+      @keyframes dot-pulse {
+        0%,
+        60%,
+        100% {
+          transform: scale(1);
+          opacity: 0.6;
+        }
+        30% {
+          transform: scale(1.5);
+          opacity: 1;
+        }
+      }
+
+      .home-button {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        border-radius: 4px;
+        color: #ffffff;
+        padding: 8px 12px;
+        cursor: pointer;
+        text-decoration: none;
+      }
+
+      .toolbar {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        padding: 0 20px;
+      }
+
+      .tool-button {
+        background-color: #2b2b2b;
+        border: 1px solid #444;
+        border-radius: 20px;
+        color: #ffffff;
+        padding: 8px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+
+      .tool-icon {
+        width: 20px;
+        height: 20px;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="index.html" class="home-button">← Tilbage</a>
+
+    <header>
+      <h1>ChatGPThias</h1>
+    </header>
+
+    <div class="chat-container" id="chatContainer">
+      <div class="message">
+        <div class="bot-message">
+          <div class="sender">ChatGPThias</div>
+          <div>
+            Hej designer! Jeg er ChatGPThias - Mathias' AI avatar og
+            designkritiker. Hvad har du lavet, som jeg kan rive fra hinanden i
+            dag?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <button class="tool-button">
+        <span class="tool-icon">🔄</span>
+        Overrask mig
+      </button>
+      <button class="tool-button">
+        <span class="tool-icon">📝</span>
+        Kode
+      </button>
+      <button class="tool-button">
+        <span class="tool-icon">📋</span>
+        Opsummer en tekst
+      </button>
+      <button class="tool-button">
+        <span class="tool-icon">💡</span>
+        Brainstorm
+      </button>
+      <button class="tool-button">
+        <span class="tool-icon">📊</span>
+        Analyser data
+      </button>
+      <button class="tool-button">
+        <span class="tool-icon">⋯</span>
+        Mere
+      </button>
+    </div>
+
+    <div class="input-container">
+      <div class="input-box">
+        <textarea
+          id="userInput"
+          placeholder="Spørg om design feedback..."
+          rows="1"
+        ></textarea>
+        <button class="send-button" id="sendButton">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M7 11L12 6L17 11M12 18V7"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="button-container">
+        <button class="action-button">
+          <span class="icon">+</span>
+          Vedhæft
+        </button>
+        <button class="action-button">
+          <span class="icon">🔍</span>
+          Søg
+        </button>
+        <button class="action-button">
+          <span class="icon">📍</span>
+          Ræsonner
+        </button>
+        <button id="uploadButton" class="upload-button">
+          <span class="icon">📁</span>
+          Upload design
+        </button>
+        <button class="action-button" style="margin-left: auto">
+          <span class="icon">🔊</span>
+          Stemme
+        </button>
+      </div>
+
+      <div id="fileInfo" class="file-info"></div>
+      <input
+        type="file"
+        id="fileInput"
+        style="display: none"
+        accept="image/*"
+      />
+    </div>
+
+    <script>
+      const chatContainer = document.getElementById("chatContainer");
+      const userInput = document.getElementById("userInput");
+      const sendButton = document.getElementById("sendButton");
+      const uploadButton = document.getElementById("uploadButton");
+
+      // Auto-resize textarea
+      userInput.addEventListener("input", function () {
+        this.style.height = "auto";
+        this.style.height = this.scrollHeight + "px";
+      });
+
+      // Send message with Enter key
+      userInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      sendButton.addEventListener("click", sendMessage);
+
+      let isFirstMessage = true;
+      let hasUploaded = false;
+      let isThinking = false;
+      let waitingForUpload = false;
+      let usedCritiqueIndices = [];
+
+      // File input setup
+      const fileInput = document.getElementById("fileInput");
+      const fileInfo = document.getElementById("fileInfo");
+
+      // Array of snarky design critiques
+      const designCritiques = [
+        "Er det det? Kig nu ordentligt på designet for helvede!",
+        "Har du brugt griddet? Jeg kan svare for dig - 'NEJ jeg har ikke brugt griddet Mathias' - så gør det dog for helvede!",
+        "Kalder du det for typografi? Min bedstemor kunne lave bedre font-valg med bind for øjnene for helvede!",
+        "Hvad fanden er det for et farvevalg? Har du aldrig hørt om farveharmoni for helvede?",
+        "Negative space? Der er INTET negativt space, det er ALT sammen negativt for helvede!",
+        "Dine margins er jo helt tilfældige! Brug nu det forbandede baseline grid for helvede!",
+        "UX flow? Mere som UX langsom død! Brugeren ville dø af kedsomhed før de nogensinde når til checkout for helvede!",
+        "Responsivt design? Det eneste der responderer her er mine tårer, når jeg ser det her layout for helvede!",
+        "Konsistens i designsystemet? Hvilken konsistens? Det ligner du har samplet fra fem forskellige Dribbble-shots for helvede!",
+        "Hvad fanden er det for en hierarki? Jeg kan ikke se hvad der er vigtigt og hvad der ikke er for helvede!",
+        "Kontrast? HVILKEN kontrast? Jeg kan ikke læse den tekst på den baggrund for helvede!",
+        "Visuel balance? Det her design er så ubalanceret at det ville falde omkuld, hvis det var fysisk for helvede!",
+        "Negative space er ikke bare 'ingenting', det er et DESIGNELEMENT for helvede!",
+        "Affordance? Jeg kan ikke engang se hvad der er klikbart her for helvede!",
+        "De her ikoner er så inkonsistente at de ligner de kommer fra 5 forskellige icon packs for helvede!",
+        "Er det her COMIC SANS? I 2025? Er du seriøs for helvede!?",
+        "White space er ikke din fjende, men du behandler det som om den har dræbt din familie for helvede!",
+        "Luk nu Photoshop og åbn Figma som et normalt menneske for helvede!",
+        "Har du nogensinde hørt om 8pt grid-systemet? NEJ ÅBENBART IKKE for helvede!",
+        "Du har jo ikke engang aligned teksten ordentligt! Er det så svært at bruge 'left aligned' konsekvent for helvede?",
+        "Det her er ikke minimalistisk design, det er DOVEN design for helvede!",
+        "Scalering? Har du testet det her på en mobil? Det ville være fuldstændig ulæseligt for helvede!",
+        "Det her design ser ud som om du kastede en spand med komponenter på skærmen og kaldte det færdigt for helvede!",
+        "Bruger du stadig pixel perfection i 2025? Velkommen til fremtiden - vi har fluid design nu for helvede!",
+        "KLIK-område... KLIK-OMRÅDE!! Dine knapper er så små at selv en mus ville have svært ved at ramme dem for helvede!",
+      ];
+
+      function sendMessage() {
+        const message = userInput.value.trim();
+        if (message !== "") {
+          // Add user message
+          addMessage("Dig", message, "user-message");
+          userInput.value = "";
+          userInput.style.height = "auto";
+
+          // Process message
+          setTimeout(() => {
+            if (isFirstMessage) {
+              // Show thinking animation
+              showThinking();
+
+              setTimeout(() => {
+                // Hide thinking animation
+                hideThinking();
+
+                // Ask for design upload
+                addMessage(
+                  "ChatGPThias",
+                  "Jeg skal lige se hvad du har lavet før jeg kan give dig ordentlig feedback. Upload dit design, så jeg har noget kontekst at arbejde ud fra.",
+                  "bot-message"
+                );
+                uploadButton.style.display = "block";
+                isFirstMessage = false;
+                waitingForUpload = true;
+
+                // Setup file input and upload button
+                uploadButton.addEventListener("click", function () {
+                  fileInput.click();
+                });
+
+                fileInput.addEventListener("change", function () {
+                  if (this.files && this.files[0]) {
+                    const fileName = this.files[0].name;
+                    fileInfo.textContent = `Valgt fil: ${fileName}`;
+                    fileInfo.style.display = "block";
+
+                    // Remove angry styling if it exists
+                    uploadButton.classList.remove("angry");
+
+                    // Show loading animation
+                    showThinking();
+
+                    setTimeout(() => {
+                      // Hide thinking animation
+                      hideThinking();
+
+                      // Get a critique that hasn't been used yet
+                      const randomCritique = getUnusedCritique();
+                      addMessage("ChatGPThias", randomCritique, "bot-message");
+                      hasUploaded = true;
+                      waitingForUpload = false;
+                    }, 2000);
+                  }
+                });
+              }, 1500);
+            } else if (hasUploaded) {
+              // Show thinking animation
+              showThinking();
+
+              setTimeout(() => {
+                // Hide thinking animation
+                hideThinking();
+
+                // Get a critique that hasn't been used yet
+                const randomCritique = getUnusedCritique();
+                addMessage("ChatGPThias", randomCritique, "bot-message");
+              }, 1500);
+            } else if (waitingForUpload) {
+              // Show thinking animation
+              showThinking();
+
+              setTimeout(() => {
+                // Hide thinking animation
+                hideThinking();
+
+                // Tell user to upload the design in an angry way
+                addMessage(
+                  "ChatGPThias",
+                  "Tryk på upload design knappen for HELVEDE!",
+                  "bot-message"
+                );
+
+                // Make the button angry and large
+                uploadButton.classList.add("angry");
+              }, 1500);
+            }
+          }, 500);
+        }
+      }
+
+      function addMessage(sender, text, className) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message";
+
+        const contentDiv = document.createElement("div");
+        contentDiv.className = className;
+
+        const senderDiv = document.createElement("div");
+        senderDiv.className = "sender";
+        senderDiv.textContent = sender;
+
+        const textDiv = document.createElement("div");
+        textDiv.textContent = text;
+
+        contentDiv.appendChild(senderDiv);
+        contentDiv.appendChild(textDiv);
+        messageDiv.appendChild(contentDiv);
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      function showThinking() {
+        isThinking = true;
+
+        // Create thinking message
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "message thinking-message";
+
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "bot-message";
+
+        const senderDiv = document.createElement("div");
+        senderDiv.className = "sender";
+        senderDiv.textContent = "ChatGPThias";
+
+        const thinkingDiv = document.createElement("div");
+        thinkingDiv.className = "thinking";
+
+        // Add the dots
+        for (let i = 0; i < 3; i++) {
+          const dot = document.createElement("span");
+          dot.className = "dot";
+          thinkingDiv.appendChild(dot);
+        }
+
+        contentDiv.appendChild(senderDiv);
+        contentDiv.appendChild(thinkingDiv);
+        messageDiv.appendChild(contentDiv);
+
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+
+      function hideThinking() {
+        isThinking = false;
+
+        // Remove thinking message
+        const thinkingMessage = document.querySelector(".thinking-message");
+        if (thinkingMessage) {
+          chatContainer.removeChild(thinkingMessage);
+        }
+      }
+
+      // Function to get a critique that hasn't been used yet
+      function getUnusedCritique() {
+        // If all critiques have been used, reset the tracking
+        if (usedCritiqueIndices.length >= designCritiques.length) {
+          usedCritiqueIndices = [];
+          console.log("All critiques used, resetting the list!");
+        }
+
+        // Filter out indices that have already been used
+        const availableIndices = Array.from(
+          { length: designCritiques.length },
+          (_, i) => i
+        ).filter((index) => !usedCritiqueIndices.includes(index));
+
+        // Select a random index from the available ones
+        const randomIndex =
+          availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+        // Add the selected index to the used list
+        usedCritiqueIndices.push(randomIndex);
+
+        return designCritiques[randomIndex];
+      }
+    </script>
+  </body>
+</html>
